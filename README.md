@@ -1,168 +1,254 @@
-# FredericAuthenticate
-
----
+# DjangoPalme
 
 # Projet Lyon Palme 
 
 ## 1. Présentation d’ensemble du projet 
 
-*Définition du besoin* : Le projet se scinde en deux volets
+  *Définition du besoin* : organiser les listes des prets des adherents
 
-# *1er volet* : 
-Une application gérant les inscriptions des adhérents au club doit être développée. Elle est utilisée par le(s) secrétaire(s) du club. Les objectifs de l’application « Inscription des adhérents au club » sont : 
+on decide de creer un tableau qui comprenne les prets des materieaux par les adherents de lyon palmes, ainsi que les dates de chaques prets.
+Cela permet a la societe Lyon palme de savoir quelles materielles sont encore disponibles, ou sinon qui l'a maintenant et quand il devra etre retournée
 
-+ Se connecter à l'application 
-+ Visualiser les adhérents inscrits 
-+ Procéder à l'inscription des nouveaux 
-+ Archiver les anciens adhérents 
-
-La cible adressée par l’application sont que le(s) secrétaire(s) du club, et uniquement lui/eux. 
-
-# *2ᵉ volet* : 
-
-Les nageurs connectés au site doivent pouvoir : 
-
-Afficher le trombinoscope des adhérents pour la saison en cours, ainsi que l’annuaire. Pour le trombinoscope, en plus de la photo du nom, du prénom de l’adhérent sont affichés ses statuts (comme : « président », « coach », …). 
-
-Modifier son compte : 
-
-Pour commencer, on modifier les coordonnées complètes : Les données s’affichent sur une carte avec un bouton permettant de l’éditer afin qu’il puisse les modifier. 
-
-Ensuite, on modifier leurs mots de passes : Le nageur pourra modifier son mot de passe, mais celui-ci sera saisi dans deux zones de texte distinctes dans lesquelles il ne sera pas possible de faire un « coller ». 
-
-La cible adressée par l’application concerne tous les nageurs inscrits du club, et uniquement eux. 
-
-Le site est développé avec Django, et que la base de données utilisé se trouve sur PostgreSQL
+ceci est creer sur C# par l'application Microsoft Visuel Studios.
 
 ---
 
-### Initialiser 
+## 2. Processus de la creation du projet
 
-Pour commencer, on doit installer un logiciel Heroku Cli, qu’on peut télécharger par le site officiel sous n’importe quel moyen. 
-  + Avec Ubuntu : 
-  ```
-  $ sudo snap install heroku –classic
-  ```
+### *1. Avant la creation du projet*
 
- + Avec HomeBrew :
-  ``` 
-  brew install heroku/brew/heroku
-  ```
-Dès que l'installation est complète, on peut accéder heroku dans l’invite de commande. On doit se loger avec un compte Heroku pour pouvoir l’utiliser. 
-Pour loger sur heroku Cli: entrer la commande suivante, et puis entrer votre nom d’utilisateur et votre mot de passe : 
-```
-$ Login Heroku
-```
+Au debut du projet, on a deja au debut deux page de code qui nous sert comme guide a nous aider avec le devellopement du client lourd. ces pages sont Adherents.cs et DAO.cs.
 
-### Accéder à GitHub 
+La page Adherents.cs est un page complete qui permet de creer la table Adherent dans le programme. Il se sert aussi comme guide en quoi la page de l'initialisation d'un table se ressemble. 
 
-Pour que le deployement peut être possible, on doit aussi assurer qu’on peut accéder à GitHub/Lab. On va donc entrer un répertoire Github sur Heroku Cli. On utilise mone répertoire comme exemple :
+voici un extrait du page Adherent.cs:
 ```
-$ git clone https://github.com/Frederic-83/FredericAuthenticate
-```
-
-Pour mieux incorporer votre future application avec le répertorie, on doit entrer dans le même répertorie. 
-```
-$ cd FredericAuthenticate
+      public int AdherentID { get; set; }
+        public string AdherentIDString { get { return AdherentID.ToString(); } }
+        public string AdherentNom { get; set; }
+        public string AdherentPrenom { get; set; }
+        public string Rue { get; set; }
+        public string Ville { get; set; }
+        public string Cp { get; set; }
+        public string Telephone { get; set; }
+        public string Mail { get; set; }
+        public string Genre { get; set; }
+        public string Niveau { get; set; }
+        public int Pointure { get; set; }
+        public string PointureString { get { return Pointure.ToString(); } }
+        public string Taille { get; set; }
 ```
 
-### Créer l’Application Heroku 
+La page DAO.cs est un page qui permet d'inserer et d'initialiser les données de chaque champs des tables dans le base de données qu'on créer. Au debut, seul le partie qui inclut les données concernant les adherents.
 
-Dès qu’on est dans le répertoire, on peut donc créer notre propre application avec la commande suivant: 
+voici un exemple de la page DAO.cs:
 ```
-$ Heroku create
-```
-
-Par contre, on peut nommer notre application en écrivant le nom après create (on note qu'on ne peut pas utiliser les espaces et les lettres en majuscule): 
-```
-$ Heroku create django-frederic
-```
-
-Dès que l’application est créée, on peut le déployer avec le code suivant : 
-```
-$ git push heroku main
-```
-
-Lorsque l’application est créer/déployé, on peut e voire si c’est fonctionnel avec le code suivant : 
-```
-$ heroku ps:scale web=1
-```
-
-### (Si le code retourne un message d’erreur, on doit recommencer le code au-dessus) 
-
-Comme l’appli est déployé, on peut le voir à n’importe quel moment : 
-```
-$ Heroku open
-```
-
-### View Logs : 
-
-Lorsque le site web de l’appli est créer, on peut voir le(s) logs associer avec la commande suivante : 
-```
-$ heroku logs –tail
-```
-
-Lorsque cette commande est exécutée, on peut voir tous les logs depuis la création. Pour sortir des logs, on doit simplement entre *ctrl+c.* 
-
-### Créer un ProcFile: 
-
-Un Procfile est un fichier texte dans le répertoire racine de votre application, pour déclarer explicitement quelle commande doit être exécutée pour démarrer votre application. Pour le créer, on entre la commande suivante : 
-```
-web: django-frederic FredericAuthenticate
+var adherents = new ObservableCollection<Adherent>();
+try
+  {
+    using (SqlConnection conn = new SqlConnection(connectionString))
+    {
+      conn.Open();
+      if (conn.State == System.Data.ConnectionState.Open)
+      {
+        using (SqlCommand cmd = conn.CreateCommand())
+        {
+          cmd.CommandText = GetAdherentsQuery;
+          using (SqlDataReader reader = cmd.ExecuteReader())
+          {
+            while (reader.Read())
+            {
+              var adherent = new Adherent();
+              adherent.AdherentNom = reader.GetString(0);
+              adherent.AdherentPrenom = reader.GetString(1);
+              adherent.Rue = reader.GetString(2);
+              adherent.Cp = reader.GetString(3);
+              adherent.Ville = reader.GetString(4);
+              adherent.Telephone = reader.GetString(5);
+              adherent.Mail = reader.GetString(6);
+              adherent.Genre = reader.GetString(7);
+              adherent.Niveau = reader.GetString(8);
+              adherent.Pointure = reader.GetInt32(9);
+              adherent.Taille = reader.GetString(10);
+              adherents.Add(adherent);
+[...]
 ```
 
-Le code suivant peut être utiliser dans le cas qu’on utilise un fichier ProcFile.windows 
+### *2. lors du creation du projet*
+
+pour commencer, on doit ouvrir Visuel Studios et de créer un nouvelle repertoire pour le projet. dés que le projet est créer, on a le choix d'inserer les pages Adherents et DAO, ou on peut creer des nouveaux pages de memes noms et coller les codes a l'interieur. On prefer de mettre le page Adherent dans un sous repertoire intitulée Model.
+
+Puis, on cherche a ajouter les tables et les champs qu'on a besoins pour le projet. Dans ce cas, il s'agit des tables Prêts, Materiels et ses deux tables-enfants: palmes et combinaison. Afin de faire cela, on creer leurs pages dans Visuel Studio. Ensuite, afin d'officialiser ces nouveaux champs, on ajouts les nouveaux tables dans la Page DAO.cs, dans la meme maniere qu'on a initialiser le table Adherent.
+
+voici un exemple du page Materiel.cs:
 ```
-web: python manage.py runserver 0.0.0.0:5000
-```
+  public class Materiel
+    {
+      //atributs
+      private int _codeMat;
+      private string _type;
+      private string _marque;
+      private string _etat;
 
-### Installer les dépendances d'applications 
+      public Materiel(int _codeMat, string _type, string _marque, string _etat)
+      {
+        this._codeMat = _codeMat;
+        this._type = _type;
+        this._marque = _marque;
+        this._etat = _etat;
+      }
 
-Pour pouvoir utiliser les dépendances qui sont dans le fichier requirements.text, on devrait avoir accès à u environnement virtuel, ou venv. On peut l’accéder en installant le Virtual environnement sur Heroku Cli: 
-```
-$ python3 -m venv venv
-``` 
-
-Puis, pour l’activer le venv, la commande dépende du système de l’invite de commande utilisé : 
-  +Avec Microsoft Windows System : 
-  ```
-  .\venv\Scripts\activate
-  ```
-
-  +Avec Linux System : 
-  ```
-  source venv/bin/activate
-  ```
-
-Dès qu’on est dans un venv, on peut donc avoir le fichier des dépendances d’application avec la commande suivante : 
-```
-$ pip install -r requirements.txt
-```
-
-Dès qu’on a le fichier, on peut l’ouvrir est voire les dépendances qu’on peut utiliser. La commande pour l’afficher les dépendances sont : 
-```
-$ pip list
-```
-
-### Exécuter l’appli en local 
-
-(On note que l’étape précédant doit être fait avant de démarrer cet étape) 
-
-Pour commencer l’appli en mode local, on doit exécuter collectstatic afin que heroku peut utiliser Django, avec cette commande : 
-```
-$ python manage.py collectstatic
+      public override string ToString()
+      {
+        // return base.Tostring
+        string _materiel;
+        _materiel = string.Concat("_codeMat : ", _codeMat, "_type : ", _type, "_marque : ", _marque, "_etat :", _etat);
+        return base.ToString();
+      }
+    }
 ```
 
-Or, si vous vous utiliser u autre system d’invite de commande, on peut utiliser les alternatives. 
- + Dans le cas de Windows Système : 
-   ```
-   $ heroku local -f Procfile.windows
-   ```
+exemple du page prêts:
+```
+public class Pret
+{
+  //attributs
+  private int idpret;
+  private DateTime datepret;
+  private int idAdherent;
 
- + Dans le cas de Linux System : 
-   ```
-   $ heroku local
-   ```
+  public Pret(int idpret, DateTime datepret, int idAdherent)
+  {
+    this.idpret = idpret;
+    this.datepret = datepret;
+    this.idAdherent = idAdherent;
+  }
 
-Si les étapes ont été correctement appliqué, on peut voir le site avec *http://localhost:5000.* Si ce n’est pas le cas, vérifier que collectstatic est actuellement exécuter. 
-Pour sortir du local, entrer *cntr+c* 
+  public override string ToString()
+  {
+    // return base.Tostring
+    string _combinaison;
+    _combinaison = string.Concat("idpret : ", idpret, "datepret : ", datepret, "idAdherent : ", idAdherent);
+    return base.ToString();
+  }
+}
+```
+
+Maintenant, on devra faire apparaitre les resultats des qu'on a demarer le code. Pour cela, on créera un page qui permet de les afficher sous forme de tableau. on appelle cet page MainPage.
+Il y a plusieur moyen de faire afficher les codes de cet maniere:
+1. On met tous les tables dans la page MainPage. Cela a pour consequence de mettre tous les données sur un meme page et, si on ne manipule pas bien l'organisation du page, risque d'etre illisible.
+2. On decide de créer plusieur page MainPages (ex: Mainpage; Mainpage(1); Mainpage(1)... etc.). alors que cela risque de rendre plus de temps, on obtiendera un page ou on peut acceder facilement a un autre page ayant un table different.
+
+extrait du code MainPage.xaml:
+```
+<Page 
+  x:Class="TestMateriel.MainPage" 
+  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+  xmlns:local="using:TestMateriel.Model" 
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+  mc:Ignorable="d" 
+  Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"> 
+
+  <Grid Background="{ThemeResource SystemControlAcrylicWindowBrush}"> 
+    <RelativePanel> 
+      <ListView Name="AdherentList" 
+        SelectionMode="Single" 
+        ScrollViewer.VerticalScrollBarVisibility="Auto" 
+        ScrollViewer.IsVerticalRailEnabled="True" 
+        ScrollViewer.VerticalScrollMode="Enabled" 
+        ScrollViewer.HorizontalScrollMode="Enabled" 
+        ScrollViewer.HorizontalScrollBarVisibility="Auto" 
+        ScrollViewer.IsHorizontalRailEnabled="True" 
+        Margin="20"> 
+          <ListView.HeaderTemplate> 
+            <DataTemplate> 
+              <StackPanel Orientation="Horizontal"  > 
+                <TextBlock Text="Nom" Margin="8,0" Width="150" Foreground="DarkRed" /> 
+                <TextBlock Text="Prenom" Width="150" Foreground="DarkRed" /> 
+                <TextBlock Text="Rue" Width="200" Foreground="DarkRed" /> 
+                <TextBlock Text="CP" Width="80" Foreground="DarkRed" /> 
+                <TextBlock Text="Ville" Width="150" Foreground="DarkRed" /> 
+                <TextBlock Text="Num Telephone" Width="150" Foreground="DarkRed" /> 
+                <TextBlock Text="Mail" Width="150" Foreground="DarkRed" /> 
+                <TextBlock Text="Genre" Width="150" Foreground="DarkRed" /> 
+                <TextBlock Text="Pointure" Width="150" Foreground="DarkRed" /> 
+                <TextBlock Text="Taille" Width="150" Foreground="DarkRed" /> 
+              </StackPanel> 
+            </DataTemplate> 
+          </ListView.HeaderTemplate> 
+          <ListView.ItemTemplate> 
+            <DataTemplate x:DataType="local:Adherent"> 
+              <StackPanel Orientation="Horizontal" > 
+                <TextBlock Name="Nom" 
+                  Text="{x:Bind MemberNom}" 
+                  Width="150" /> 
+                <TextBlock Name="Prenom" 
+                  Text="{x:Bind MemberPrenom}" 
+                  Width="150" /> 
+                <TextBlock Name ="rue" 
+                  Text="{x:Bind Road}" 
+                  Width="200" /> 
+                <TextBlock Name ="Code postal" 
+                  Text="{x:Bind Cp}" 
+                  Width="80" /> 
+                <TextBlock Name ="ville" 
+                  Text="{x:Bind Town}" 
+                  Width="150" /> 
+                <TextBlock Name ="Num Telephone" 
+                  Text="{x:Bind Telephone}" 
+                  Width="150" /> 
+                <TextBlock Name ="Mail" 
+                  Text="{x:Bind}" 
+                  Width="150" /> 
+                <TextBlock Name ="Genre" 
+                  Text="{x:Bind Gender}" 
+                  Width="150" /> 
+                <TextBlock Name ="Pointure" 
+                  Text="{x:Bind HeelSize}" 
+                  Width="150" /> 
+                <TextBlock Name ="Taille" 
+                  Text="{x:Bind Height}" 
+                 Width="150" /> 
+                </StackPanel> 
+              </DataTemplate> 
+            </ListView.ItemTemplate> 
+          </ListView>
+        [...] 
+```
+
+exemple du code MainPage.xaml.cs:
+```
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
+using Windows.Foundation;
+using Windows.Foundation.Collections;
+using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Controls.Primitives;
+using Windows.UI.Xaml.Data;
+using Windows.UI.Xaml.Input;
+using Windows.UI.Xaml.Media;
+using Windows.UI.Xaml.Navigation;
+
+// Pour plus d'informations sur le modèle d'élément Page vierge, consultez la page https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
+
+namespace Gestion_Materiel
+{
+    /// <summary>
+    /// Une page vide peut être utilisée seule ou constituer une page de destination au sein d'un frame.
+    /// </summary>
+    public sealed partial class MainPage : Page
+    {
+        public MainPage()
+        {
+            this.InitializeComponent();
+        }
+    }
+}
+```
+
